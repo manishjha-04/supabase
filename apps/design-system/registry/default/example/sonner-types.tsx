@@ -52,9 +52,11 @@ export default function SonnerDemo() {
         type="primary"
         onClick={() =>
           toast('Event has been created', {
-            action: {
-              label: 'Action!',
-              onClick: () => console.log('Undo'),
+            hooks: {
+              actions: {
+                label: 'Action!',
+                onClick: () => console.log('Undo')
+              }
             },
           })
         }
@@ -93,5 +95,5 @@ export default function SonnerDemo() {
         Custom
       </Button>
     </div>
-  )
+  );
 }

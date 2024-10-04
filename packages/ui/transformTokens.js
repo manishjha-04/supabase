@@ -3,7 +3,7 @@ const glob = require('glob')
 const sourceFiles = glob.sync(`tokens/core/**/*.json`)
 const themeFiles = glob.sync(`tokens/themes/**/*.json`)
 
-const StyleDictionary = require('style-dictionary')
+import StyleDictionary from "style-dictionary";
 const deepMerge = require('deepmerge')
 const webConfig = require('./internals/transform/web/index.js')
 
@@ -53,7 +53,7 @@ StyleDictionary.registerFilter({
  */
 StyleDictionary.registerFormat({
   name: 'tw/css-variables',
-  formatter({ dictionary }) {
+  format({ dictionary }) {
     // console.log('dictionary', dictionary)
     return (
       'module.exports = ' +
@@ -165,10 +165,10 @@ console.log('Building Core Styles...')
 
 console.log(`\n`)
 
-sourceFiles.map(function (filePath) {
+sourceFiles.map(async function(filePath) {
   console.log(filePath)
 
-  const StyleDictionaryExtended = StyleDictionary.extend({
+  const StyleDictionaryExtended = new StyleDictionary({
     ...deepMerge.all([webConfig]),
     source: [filePath],
     platforms: {
@@ -200,7 +200,9 @@ sourceFiles.map(function (filePath) {
     },
   })
 
-  StyleDictionaryExtended.buildAllPlatforms()
+  await StyleDictionaryExtended.hasInitialized;
+
+  await StyleDictionaryExtended.buildAllPlatforms()
   //   console.log('StyleDictionaryExtended', StyleDictionaryExtended)
   // Check if properties and all are defined
   if (StyleDictionaryExtended.properties && StyleDictionaryExtended.properties.all) {
@@ -226,7 +228,7 @@ console.log(`\n`)
 
 console.log(themeFiles)
 
-themeFiles.map(function (filePath, i) {
+themeFiles.map(async function(filePath, i) {
   let fileName = fileNameCleaner(filePath)
 
   const isCombinedDark = fileName === 'dark-combined' ? true : false
@@ -259,7 +261,7 @@ themeFiles.map(function (filePath, i) {
     configTailwindFilesByType = getConfigTailwindFilesByType(supportedTokenTypeList)
   }
 
-  const StyleDictionaryExtended = StyleDictionary.extend({
+  const StyleDictionaryExtended = new StyleDictionary({
     ...deepMerge.all([webConfig]),
     source: [...sourceFiles, filePath],
     platforms: {
@@ -294,5 +296,6 @@ themeFiles.map(function (filePath, i) {
       //   },
     },
   })
-  StyleDictionaryExtended.buildAllPlatforms()
+  await StyleDictionaryExtended.hasInitialized;
+  await StyleDictionaryExtended.buildAllPlatforms()
 })
